@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="pl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>US 66 Route Trip – Kalendarz</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ui-scale: 1.0;
+    }
+    html, body {
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+    }
+    .font-bebas {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.05em;
+    }
+    /* Light Mode Palette */
+    html.light {
+      --bg-color: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.65);
+      --card-border: rgba(200, 200, 210, 0.4);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --nav-bg: rgba(255, 255, 255, 0.7);
+      --nav-border: rgba(0, 0, 0, 0.1);
+      --nav-blur: 16px;
+    }
+    /* Dark Mode Palette */
+    html.dark {
+      --bg-color: #030712;
+      --card-bg: rgba(17, 24, 39, 0.5);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --nav-bg: rgba(15, 15, 15, 0.75);
+      --nav-border: rgba(255, 255, 255, 0.1);
+      --nav-blur: 24px;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+    
+    /* Background Image - Monument Valley */
+    .bg-image {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: url('https://images.unsplash.com/photo-1527668752968-14dc70a27c95?q=80&w=2500&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      z-index: -2;
+      pointer-events: none;
+      transition: opacity 0.4s ease, filter 0.4s ease;
+    }
+    html.dark .bg-image {
+      opacity: 0.15;
+      filter: grayscale(30%) contrast(120%);
+    }
+    html.light .bg-image {
+      opacity: 0.25;
+    }
+
+    /* Ambient Gradients */
+    .ambient-bg {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+    html.dark .ambient-bg {
+      background: 
+        radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.08), transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.08), transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.05), transparent 50%);
+    }
+    html.light .ambient-bg {
+      background: 
+        radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.04), transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.04), transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.03), transparent 50%);
+    }
+
+    /* Glassmorphism Classes */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+    }
+    .glass-nav {
+      background: var(--nav-bg);
+      border: 1px solid var(--nav-border);
+      backdrop-filter: blur(var(--nav-blur));
+      -webkit-backdrop-filter: blur(var(--nav-blur));
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Day Cells */
+    .day-cell {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      cursor: pointer;
+    }
+    .day-cell::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .day-cell:hover::before {
+      opacity: 1;
+    }
+    .day-cell:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .day-cell > * {
+      position: relative;
+      z-index: 1;
+    }
+    /* Highlight States */
+    .hotel-card.highlighted {
+      border-color: #f59e0b !important;
+      background: rgba(245, 158, 11, 0.12) !important;
+      transform: translateY(-4px);
+      box-shadow: 0 0 0 1px #f59e0b, 0 10px 30px -10px rgba(245, 158, 11, 0.4) !important;
+    }
+    
+    .nav-btn {
+      transition: all 0.2s ease;
+    }
+    .nav-btn.active {
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      color: #f59e0b;
+    }
+    html.light .nav-btn.active {
+      background: rgba(0,0,0,0.08);
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen relative pb-20 selection:bg-amber-500/20">
+  
+  <div class="bg-image"></div>
+  <div class="ambient-bg"></div>
+
+  <!-- FLOATING NAVIGATION DOCK -->
+  <div class="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+    <nav class="glass-nav rounded-full px-2 py-2 flex items-center gap-1 sm:gap-2 pointer-events-auto">
+      <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn active flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border border-transparent text-amber-500">
+        <span class="text-base">🗓️</span> <span class="hidden sm:inline">Kalendarz</span>
+      </button>
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold hover:bg-white/5 border border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)]">
+        <span class="text-base">🗺️</span> <span class="hidden sm:inline">Master Plan</span>
+      </button>
+      <button onclick="switchTab('harmonogram')" id="nav-harmonogram" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold hover:bg-white/5 border border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)]">
+        <span class="text-base">📋</span> <span class="hidden sm:inline">Hotele & Koszty</span>
+      </button>
+      <div class="w-px h-6 bg-[var(--card-border)] mx-1"></div>
+      <button onclick="toggleTheme()" class="nav-btn flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold hover:bg-white/5 border border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)]" title="Przełącz motyw">
+        <span id="theme-icon" class="text-base">☀️</span>
+      </button>
+    </nav>
+  </div>
+
+
+<!-- VIEWS -->
+<div id="view-calendar" class="tab-view transition-opacity duration-300 opacity-100">
+<div id="main-container" class="scaled-ui max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-28 space-y-12">
+    
+    <!-- HEADER SECTION -->
+    <header class="text-center space-y-4">
+      <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-widest mb-2 shadow-lg shadow-amber-500/10 backdrop-blur-md">
+        Wyprawa USA & Kanada 2024
+      </div>
+      <h1 class="font-bebas text-6xl sm:text-7xl lg:text-8xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 drop-shadow-lg pb-2">
+        US 66 ROUTE TRIP
+      </h1>
+      <p class="text-[var(--text-main)] text-base sm:text-lg max-w-2xl mx-auto font-medium bg-[var(--card-bg)] backdrop-blur-md px-6 py-2 rounded-full border border-[var(--card-border)] shadow-sm">
+        Interaktywna oś czasu 13-dniowej wyprawy. Kliknij dowolny dzień!
+      </p>
+    </header>
+
+    <!-- LEGEND -->
+    <div class="flex flex-wrap justify-center gap-3">
+      <div class="glass-card px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2 text-blue-500">
+        <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"></span> Nowy Jork
+      </div>
+      <div class="glass-card px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2 text-amber-500">
+        <span class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]"></span> Pętla & Route 66
+      </div>
+      <div class="glass-card px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2 text-rose-500">
+        <span class="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"></span> Kalifornia
+      </div>
+      <div class="glass-card px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-2 text-emerald-500">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Kanada
+      </div>
+    </div>
+
+    <!-- CALENDAR GRID -->
+    <div class="glass-card rounded-[2rem] p-4 sm:p-8">
+      <div class="grid grid-cols-7 gap-3 sm:gap-4 text-center">
+        <!-- Weekdays -->
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Pon</div>
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Wto</div>
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Śro</div>
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Czw</div>
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Pią</div>
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Sob</div>
+        <div class="text-[10px] sm:text-sm font-bold text-[var(--text-muted)] py-2 uppercase tracking-widest">Nie</div>
+
+        <!-- ROW 1: Oct 12 - 18 -->
+        <div onclick="selectDay(12)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-blue-500">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-blue-500 font-bebas tracking-wide">12</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">NYC</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🗽 Przylot</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">JFK/EWR, check-in</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-blue-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Hotel Asany</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(13)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-blue-500">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-blue-500 font-bebas tracking-wide">13</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">NYC</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">💼 Asana Conf</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Przemek solo NYC</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-blue-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Hotel Asany</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(14)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-blue-500">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-blue-500 font-bebas tracking-wide">14</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">NYC</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">💼 Dzień 2</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Spacer po Manhattanie</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-blue-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Hotel Asany</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(15)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-blue-500">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-blue-500 font-bebas tracking-wide">15</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">NYC</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">💻 Praca</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Zdalna, pakowanie</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-blue-400">
+            <span class="text-sm">💳</span> <span class="truncate">Własny NYC</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(16)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">16</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">LOT</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">✈️ Do Vegas</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Lot nocny, odbiór auta</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Las Vegas 1</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(17)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">17</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">VEGAS</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🎰 Relaks</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Basen, Strip, Sphere</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Las Vegas 1</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(18)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">18</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">UTAH</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🔥 Valley of Fire</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Skały ➔ Kanab</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Kanab, UT</span>
+          </div>
+        </div>
+
+        <!-- ROW 2: Oct 19 - 25 -->
+        <div onclick="selectDay(19)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">19</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">BRYCE</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🏜️ Bryce Cyn</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Widoki ➔ Page</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Page, AZ</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(20)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">20</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">PAGE</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">📸 Antelope</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Horseshoe Bend</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Page, AZ</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(21)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">21</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">GRAND</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🦅 Grand Cyn</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Desert View ➔ Williams</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Williams</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(22)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-amber-500 bg-amber-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-amber-500 font-bebas tracking-wide">22</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">RT 66</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🍔 Dinery 66</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Seligman ➔ Vegas</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-amber-500">
+            <span class="text-sm">🏨</span> <span class="truncate">MGM Grand</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(23)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-rose-500 bg-rose-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-rose-500 font-bebas tracking-wide">23</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">CA</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">☠️ Death Valley</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Badwater ➔ Beatty</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-rose-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Beatty</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(24)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-rose-500 bg-rose-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-rose-500 font-bebas tracking-wide">24</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">LOT</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🛫 Do Kanady</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Wylot rano z LAS</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-500">
+            <span class="text-sm">✈️</span> <span class="truncate">Do Toronto</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(25)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-emerald-500 bg-emerald-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-emerald-500 font-bebas tracking-wide">25</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">YYZ</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🌊 Niagara</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Wodospad z Toronto</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Toronto</span>
+          </div>
+        </div>
+
+        <!-- ROW 3: Oct 26 - 29 -->
+        <div onclick="selectDay(26)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-emerald-500 bg-emerald-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-emerald-500 font-bebas tracking-wide">26</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">ON</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🌊 Niagara</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Wycieczka z Toronto</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Toronto</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(27)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-emerald-500 bg-emerald-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-emerald-500 font-bebas tracking-wide">27</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">YYZ</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🏙️ Miasto</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Distillery, relaks</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-500">
+            <span class="text-sm">🏨</span> <span class="truncate">Toronto</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(28)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-emerald-500 bg-emerald-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-emerald-500 font-bebas tracking-wide">28</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">POWRÓT</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">✈️ LOT do WAW</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Nocny Dreamliner</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-500">
+            <span class="text-sm">✈️</span> <span class="truncate">Samolot</span>
+          </div>
+        </div>
+
+        <div onclick="selectDay(29)" class="day-cell glass-card p-3 sm:p-5 rounded-2xl min-h-[140px] sm:min-h-[160px] border-l-4 border-l-emerald-500 bg-emerald-500/5">
+          <div class="flex items-center justify-between w-full mb-2">
+            <span class="text-xl sm:text-2xl font-black text-emerald-500 font-bebas tracking-wide">29</span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">DOM</span>
+          </div>
+          <span class="text-sm font-bold mt-1 text-[var(--text-main)] leading-tight">🛬 Polska</span>
+          <span class="text-[11px] text-[var(--text-muted)] mt-1 line-clamp-2">Lądowanie w Wwa</span>
+          <div class="mt-auto pt-3 flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-emerald-500">
+            <span class="text-sm">🛌</span> <span class="truncate">Własne łóżko</span>
+          </div>
+        </div>
+        
+        <!-- Empty slots -->
+        <div class="opacity-30 flex items-center justify-center p-4 min-h-[140px] border border-dashed border-[var(--card-border)] rounded-2xl">
+          <span class="text-xl font-bold font-bebas text-[var(--text-muted)]">30</span>
+        </div>
+        <div class="opacity-30 flex items-center justify-center p-4 min-h-[140px] border border-dashed border-[var(--card-border)] rounded-2xl">
+          <span class="text-xl font-bold font-bebas text-[var(--text-muted)]">31</span>
+        </div>
+        <div class="opacity-30 flex items-center justify-center p-4 min-h-[140px] border border-dashed border-[var(--card-border)] rounded-2xl">
+          <span class="text-xl font-bold font-bebas text-[var(--text-muted)]">1</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DAY DETAILS PANEL (Floating Info) -->
+    <div id="details-panel" class="glass-card rounded-[2rem] p-8 relative overflow-hidden transition-all shadow-xl">
+      <div class="absolute -right-20 -top-20 w-64 h-64 bg-amber-500/20 blur-[80px] rounded-full pointer-events-none"></div>
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+        <span id="detail-date" class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-rose-400">
+          Wybierz dzień z kalendarza
+        </span>
+        <span id="detail-badge" class="text-sm font-bold px-4 py-1.5 rounded-full bg-[var(--card-border)] border border-[var(--card-border)] backdrop-blur-md">
+          Szczegóły
+        </span>
+      </div>
+      <p id="detail-desc" class="text-base sm:text-lg text-[var(--text-muted)] font-medium max-w-4xl leading-relaxed">
+        Kliknięcie w kafelek w kalendarzu wyświetli tutaj krótki plan dnia i podświetli hotel w sekcji poniżej.
+      </p>
+    </div>
+
+    <!-- HOTELS SECTION -->
+    <div class="pt-10">
+      <div class="mb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-black font-bebas tracking-wide text-[var(--text-main)]">Przewodnik po Noclegach</h2>
+          <p class="text-[var(--text-muted)] text-base mt-1 font-medium bg-[var(--card-bg)] backdrop-blur-sm px-3 py-1 rounded-lg inline-block border border-[var(--card-border)] shadow-sm">Gdzie śpimy, strategiczne porady i budżet per lokalizacja.</p>
+        </div>
+        <a href="pages/harmonogram.html" class="glass-card px-6 py-3 rounded-full text-sm font-bold hover:bg-amber-500/10 hover:text-amber-500 hover:border-amber-500/30 transition-all flex items-center gap-2">
+          <span class="text-lg">📋</span> Tabela Budżetowa
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        
+        <!-- NYC -->
+        <div id="hotel-card-nyc" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🗽</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-blue-500">12 – 16 Października (4 Noce)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Nowy Jork (Manhattan)</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-500 text-sm font-bold border border-blue-500/20 mb-5">
+            3 noce Asana + 1 własna
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: U.S. Pacific Hotel ($174)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Noce 12–15.10 opłacone w ramach wyjazdu. Ostatnia noc (15/16.10) z własnej kieszeni (~$300 USD). Najlepiej przedłużyć obecny pokój, by nie marnować czasu na przenosiny bagaży z rana.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🚇 Blisko metra</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">💼 Asana Event</span>
+          </div>
+        </div>
+
+        <!-- Vegas 1 -->
+        <div id="hotel-card-vegas1" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🎰</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-amber-500">16 – 18 Października (2 Noce)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Las Vegas (Start Pętli)</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-sm font-bold border border-amber-500/20 mb-5">
+            Limit: $120 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Sonesta Simply Suites ($265)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Środkowy Strip (The Linq, Horseshoe, Flamingo). Idealne na odespanie lotu. Zwróć uwagę na dodatkowe opłaty <em>Resort Fee</em> i upewnij się, że hotel ma łatwy wyjazd na autostradę.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🅿️ Parking zjazdowy</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🔮 The Sphere</span>
+          </div>
+        </div>
+
+        <!-- Kanab -->
+        <div id="hotel-card-kanab" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🌵</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-amber-500">18 – 19 Października (1 Noc)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Kanab, Utah</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-sm font-bold border border-amber-500/20 mb-5">
+            Limit: $130 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Quality Inn Williams ($81)</div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Quality Inn Kanab ($102)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Butikowe motele na trasie między Zion a Bryce. Ciche, mniejsze miejscowości z klimatem Dzikiego Zachodu. Polecane m.in. Canyons Boutique, Quail Park Lodge, Quality Inn.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🚗 Auto pod drzwiami</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🍳 Śniadania w cenie</span>
+          </div>
+        </div>
+
+        <!-- Page -->
+        <div id="hotel-card-page" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">📸</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-amber-500">19 – 21 Października (2 Noce)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Page, Arizona</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-sm font-bold border border-amber-500/20 mb-5">
+            Limit: $150 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Wingate by Wyndham ($235)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Dwie noce w jednym miejscu, by rano bez pośpiechu zwiedzić Antelope Canyon i odetchnąć. Hotele w centrum (Hyatt, Courtyard) dają 10-15 min dojazd do wszystkich atrakcji.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">⚓ Baza na 2 noce</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🌅 Blisko kanionów</span>
+          </div>
+        </div>
+
+        <!-- Williams -->
+        <div id="hotel-card-williams" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🎸</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-amber-500">21 – 22 Października (1 Noc)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Williams, Arizona</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-sm font-bold border border-amber-500/20 mb-5">
+            Limit: $130 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Quality Inn Williams ($81)</div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Quality Inn Kanab ($102)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Zamiast przepłacać w Grand Canyon Village (Tusayan), śpimy w klimatycznym miasteczku Route 66. Niesamowity retro klimat z neonami, sklepami i historycznymi dinerami.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🍔 Route 66 Diners</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🛣️ 55 min od krawędzi</span>
+          </div>
+        </div>
+
+        <!-- Vegas 2 -->
+        <div id="hotel-card-vegas2" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🎲</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-amber-500">22 – 23 Października (1 Noc)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Las Vegas (Przystanek)</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-sm font-bold border border-amber-500/20 mb-5">
+            Limit: $100 USD (Czwartek)
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: MGM Grand ($125)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Kultowy hotel na The Strip. Idealna baza wypadowa na zachód do Doliny Śmierci następnego ranka.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">📉 Tania nocleg</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🧺 Szybki przepak</span>
+          </div>
+        </div>
+
+        <!-- Lone Pine -->
+        <div id="hotel-card-beatty" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🏔️</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-rose-500">23 – 24 Października (1 Noc)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Beatty, Nevada (Dolina Śmierci)</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-rose-500/10 text-rose-500 text-sm font-bold border border-rose-500/20 mb-5">
+            Limit: $160 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Death Valley Inn ($115)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Świetna baza wypadowa po stronie Nevady po zwiedzaniu Doliny Śmierci. Zarezerwowano tu hotel idealnie pod realizację "Scenariusza 3" z wylotem następnego dnia rano z Las Vegas.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🎬 Blisko z Doliny Śmierci</span>
+          </div>
+        </div>
+
+        <!-- Vegas 3 -->
+        <div id="hotel-card-vegas3" style="display:none;" class="hotel-card glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group">
+          <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-8xl pointer-events-none transform translate-x-4 -translate-y-4">🛫</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-amber-500">24 – 25 Października (1 Noc)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Las Vegas (Wylot)</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 text-sm font-bold border border-amber-500/20 mb-5">
+            Limit: $120 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Sonesta Simply Suites ($265)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow">
+            Ostatnia noc w USA. Wybierz obiekt bliżej lotniska LAS / wypożyczalni samochodów, by niedzielny poranny proces zwrotu przebiegł bezproblemowo.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">✈️ Blisko terminala LAS</span>
+          </div>
+        </div>
+
+        <!-- Toronto -->
+        <div id="hotel-card-toronto" class="hotel-card lg:col-span-2 glass-card rounded-[2rem] p-6 sm:p-8 flex flex-col h-full relative overflow-hidden group border-emerald-500/30">
+          <div class="absolute right-0 bottom-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity text-[150px] pointer-events-none transform translate-x-10 translate-y-10">🍁</div>
+          <div class="flex items-start justify-between mb-5 relative z-10">
+            <div>
+              <span class="text-xs font-black uppercase tracking-widest text-emerald-500">25 – 28 Października (3 Noce)</span>
+              <h3 class="text-2xl font-black text-[var(--text-main)] mt-1">Toronto, Kanada</h3>
+            </div>
+          </div>
+          <div class="inline-flex max-w-fit px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 text-sm font-bold border border-emerald-500/20 mb-5">
+            Super oferta: ~$100 USD / noc
+          </div>
+          <div class="text-emerald-500 font-bold mb-3 text-sm">✅ Zarezerwowano: Airbnb (~$400)</div>
+          <p class="text-[var(--text-muted)] text-base leading-relaxed mb-8 flex-grow max-w-3xl">
+            Prywatny apartament z Airbnb. Świetna cena pozwalająca zmieścić się głęboko poniżej limitu. Idealna baza wypadowa na finał wyprawy w Kanadzie.
+          </p>
+          <div class="flex flex-wrap gap-2 text-sm font-semibold">
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🚆 Union Station hub</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🌊 Łatwy wyjazd nad Niagarę</span>
+            <span class="px-4 py-2 rounded-xl bg-[var(--card-border)] text-[var(--text-main)] backdrop-blur-sm">🚫 100% bez samochodu</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  
+</div>
+
+<div id="view-dashboard" class="tab-view transition-opacity duration-300 opacity-0 hidden">
+<div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-28 space-y-12">
+    
+    <!-- HEADER -->
+    <header class="text-center space-y-4">
+      <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-500 text-xs font-bold uppercase tracking-widest mb-2 shadow-lg shadow-amber-500/10 backdrop-blur-md">
+        Uczestnicy: Przemek & Gabi
+      </div>
+      <h1 class="font-bebas text-6xl sm:text-7xl lg:text-8xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-rose-400 to-orange-400 drop-shadow-lg pb-2">
+        MASTER PLAN WYPRAWY
+      </h1>
+      <p class="text-[var(--text-main)] text-base sm:text-lg max-w-2xl mx-auto font-medium bg-[var(--card-bg)] backdrop-blur-md px-6 py-2 rounded-full border border-[var(--card-border)] shadow-sm">
+        USA ➔ Southwest ➔ Toronto (12–29 Października)
+      </p>
+      
+      <div class="mt-8 inline-flex flex-col sm:flex-row items-center gap-3 p-4 rounded-2xl glass-card text-emerald-500 text-sm font-semibold border-emerald-500/20">
+        <span class="text-2xl">✈️</span> 
+        <span>Bezpośredni powrót LOT: Toronto (YYZ) ➔ Warszawa (WAW)<br><span class="text-emerald-500/70 text-xs">Nocny Dreamliner pokrywany przez Asanę!</span></span>
+      </div>
+    </header>
+
+    <!-- TIMELINE PLAN -->
+    <div>
+      <div class="mb-10 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-black font-bebas tracking-wide text-[var(--text-main)]">Dzień po Dniu</h2>
+          <p class="text-[var(--text-muted)] text-base mt-2 font-medium">Szczegółowy harmonogram atrakcji w 4 fazach podróży.</p>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-[2rem] p-4 sm:p-10 relative overflow-hidden">
+        
+        <div class="timeline-line"></div>
+        
+        <div class="space-y-12 relative z-10">
+          
+          <!-- FAZA 1 -->
+          <div class="relative pl-10 sm:pl-16">
+            <div class="absolute left-0 top-1.5 w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center -translate-x-1/2 sm:-translate-x-1/2 bg-[var(--card-bg)] border-4 border-blue-500 rounded-full text-xl sm:text-2xl shadow-[0_0_15px_rgba(59,130,246,0.5)] z-10 backdrop-blur-md">🗽</div>
+            <h3 class="text-2xl sm:text-3xl font-black font-bebas tracking-wide text-blue-500 mb-6">FAZA 1: Nowy Jork & Przelot</h3>
+            
+            <div class="space-y-4">
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-blue-400 uppercase tracking-widest block mb-2">12–15 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                  <strong class="text-[var(--text-main)]">Niedz–Śr:</strong> Przylot do Nowego Jorku. Konferencja Asana dla Gabi (wyżywienie na koszt firmy). Przemek zwiedza solo (Central Park, High Line, The Met). Noc 15/16.10 płatna z własnej kieszeni (~$300 USD).
+                </p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-blue-400 uppercase tracking-widest block mb-2">16 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                  <strong class="text-[var(--text-main)]">Piątek:</strong> Wspólny dzień w NYC. Wieczorny lot <strong>NYC ✈️ Las Vegas (LAS)</strong> (~5h). Odbiór auta w wypożyczalni. <em class="text-blue-400/80">Nocleg: Las Vegas</em>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAZA 2 -->
+          <div class="relative pl-10 sm:pl-16">
+            <div class="absolute left-0 top-1.5 w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center -translate-x-1/2 sm:-translate-x-1/2 bg-[var(--card-bg)] border-4 border-amber-500 rounded-full text-xl sm:text-2xl shadow-[0_0_15px_rgba(245,158,11,0.5)] z-10 backdrop-blur-md">🏜️</div>
+            <h3 class="text-2xl sm:text-3xl font-black font-bebas tracking-wide text-amber-500 mb-6">FAZA 2: Pętla Kanionów & Route 66</h3>
+            
+            <div class="space-y-4">
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-2">17 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Sobota (Las Vegas):</strong> Odespanie jet-lagu, basen, The Strip, nocny pokaz świateł The Sphere.</p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-2">18 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Niedziela (Valley of Fire):</strong> Przejazd przez Valley of Fire State Park do miasteczka Kanab w Utah. <em class="text-amber-500/80">Nocleg: Kanab</em></p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-2">19 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Poniedziałek (Bryce Canyon):</strong> Podziwianie amfiteatru hoodoos z krawędzi (Sunset Point). Trasa do Page. <em class="text-amber-500/80">Nocleg: Page</em></p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-2">20 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Wtorek (Skarby Nawaho):</strong> Rano Kanion Antylopy. Popołudnie nad Lake Powell. Zachód słońca na Horseshoe Bend. <em class="text-amber-500/80">Nocleg: Page</em></p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-2">21 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Środa (Wielki Kanion):</strong> Wjazd przez Desert View Watchtower (South Rim). Punkty widokowe, zjazd do Williams. <em class="text-amber-500/80">Nocleg: Williams</em></p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest block mb-2">22 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Czwartek (Route 66):</strong> Kultowe dinery w Williams, Seligman, Kingman. Powrót do Vegas. <em class="text-amber-500/80">Nocleg: Las Vegas</em></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAZA 3 -->
+          <div class="relative pl-10 sm:pl-16">
+            <div class="absolute left-0 top-1.5 w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center -translate-x-1/2 sm:-translate-x-1/2 bg-[var(--card-bg)] border-4 border-rose-500 rounded-full text-xl sm:text-2xl shadow-[0_0_15px_rgba(244,63,94,0.5)] z-10 backdrop-blur-md">☠️</div>
+            <h3 class="text-2xl sm:text-3xl font-black font-bebas tracking-wide text-rose-500 mb-6">FAZA 3: Dolina Śmierci & Wylot</h3>
+            
+            <div class="space-y-4">
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-rose-400 uppercase tracking-widest block mb-2">23 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                  <strong class="text-[var(--text-main)]">Piątek (Dolina Śmierci):</strong> Zabriskie Point, solnisko Badwater Basin (-86m). Następnie przejazd na północ na nocleg. <em class="text-rose-400/80">Nocleg: Beatty (Death Valley Inn)</em>
+                </p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-rose-400 uppercase tracking-widest block mb-2">24 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                  <strong class="text-[var(--text-main)]">Sobota (Wylot do Toronto):</strong> Ranny wyjazd z Beatty na lotnisko w Las Vegas (LAS). Zwrot samochodu, lot do Kanady! <em class="text-emerald-500/80">Nocleg: Toronto</em>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAZA 4 -->
+          <div class="relative pl-10 sm:pl-16">
+            <div class="absolute left-0 top-1.5 w-10 h-10 sm:w-16 sm:h-16 flex items-center justify-center -translate-x-1/2 sm:-translate-x-1/2 bg-[var(--card-bg)] border-4 border-emerald-500 rounded-full text-xl sm:text-2xl shadow-[0_0_15px_rgba(16,185,129,0.5)] z-10 backdrop-blur-md">🍁</div>
+            <h3 class="text-2xl sm:text-3xl font-black font-bebas tracking-wide text-emerald-500 mb-6">FAZA 4: Kanadyjski Finał</h3>
+            
+            <div class="space-y-4">
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">25 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Niedziela (Niagara):</strong> Wyprawa pociągiem/autobusem nad wodospad Niagara. <em class="text-emerald-500/80">Nocleg: Toronto</em></p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">26 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Poniedziałek (Toronto):</strong> Spacer po mieście, CN Tower, Waterfront. <em class="text-emerald-500/80">Nocleg: Toronto</em></p>
+              </div>
+              <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 transition-all">
+                <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-2">27–29 Października</span>
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed"><strong class="text-[var(--text-main)]">Klimat Toronto & Powrót:</strong> Spacer po Distillery District. 28.10 wieczorny lot powrotny YYZ ✈️ WAW (Dreamliner LOT). Lądowanie 29.10 w domu!</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- DISTANCE TABLE -->
+    <div class="pt-8">
+      <h2 class="text-3xl sm:text-4xl font-black font-bebas tracking-wide text-[var(--text-main)] mb-6">Trasy Samochodowe 🚘</h2>
+      
+      <div class="glass-card rounded-[2rem] overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-black/5 border-b border-[var(--card-border)]">
+              <tr class="text-[var(--text-muted)] text-xs uppercase tracking-widest">
+                <th class="px-6 py-4 font-bold">Data</th>
+                <th class="px-6 py-4 font-bold">Odcinek Trasy</th>
+                <th class="px-6 py-4 font-bold">Czas Jazdy</th>
+                <th class="px-6 py-4 font-bold">Dystans</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--card-border)] text-[var(--text-main)]">
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-amber-500">18.10</td><td class="px-6 py-4">Las Vegas ➔ Valley of Fire ➔ Kanab</td><td class="px-6 py-4 text-[var(--text-muted)]">3h 45m</td><td class="px-6 py-4 font-medium">~200 mil</td></tr>
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-amber-500">19.10</td><td class="px-6 py-4">Kanab ➔ Bryce Canyon ➔ Page</td><td class="px-6 py-4 text-[var(--text-muted)]">3h 50m</td><td class="px-6 py-4 font-medium">~200 mil</td></tr>
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-amber-500">20.10</td><td class="px-6 py-4">Page (Antelope Canyon & Horseshoe)</td><td class="px-6 py-4 text-[var(--text-muted)]">0h 45m</td><td class="px-6 py-4 font-medium">~25 mil</td></tr>
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-amber-500">21.10</td><td class="px-6 py-4">Page ➔ Desert View ➔ Williams</td><td class="px-6 py-4 text-[var(--text-muted)]">3h 15m</td><td class="px-6 py-4 font-medium">~185 mil</td></tr>
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-amber-500">22.10</td><td class="px-6 py-4">Williams ➔ Seligman ➔ Kingman ➔ Vegas</td><td class="px-6 py-4 text-[var(--text-muted)]">3h 45m</td><td class="px-6 py-4 font-medium">~220 mil</td></tr>
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-rose-500">23.10</td><td class="px-6 py-4">Las Vegas ➔ Death Valley ➔ Beatty</td><td class="px-6 py-4 text-[var(--text-muted)]">3h 00m</td><td class="px-6 py-4 font-medium">~160 mil</td></tr>
+              <tr class="hover:bg-white/5 transition-colors"><td class="px-6 py-4 font-bold text-rose-500">24.10</td><td class="px-6 py-4">Beatty ➔ Las Vegas (Lotnisko)</td><td class="px-6 py-4 text-[var(--text-muted)]">1h 45m</td><td class="px-6 py-4 font-medium">~115 mil</td></tr>
+            </tbody>
+            <tfoot class="bg-amber-500/10 border-t-2 border-amber-500/20 text-amber-500 font-black">
+              <tr>
+                <td class="px-6 py-5" colspan="2">ŁĄCZNIE (Pętla z odbiorem i zwrotem w LAS)</td>
+                <td class="px-6 py-5 text-amber-400">~22h w aucie</td>
+                <td class="px-6 py-5">~1 115 mil</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUDGET -->
+    <div class="pt-8 pb-10">
+      <h2 class="text-3xl sm:text-4xl font-black font-bebas tracking-wide text-[var(--text-main)] mb-6">Budżet Wspólny 💰</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        <!-- WIDGET 1: LOTY -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 text-center hover:-translate-y-1 transition-transform relative group">
+          <div class="absolute -top-3 -right-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">Vegas + Toronto</div>
+          <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--card-border)] rounded-xl p-4 w-[280px] text-left text-[11px] shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+            <b class="text-amber-500">Lot NYC ➔ LAS:</b> ~$158/os x 2 = $316<br>
+            <b class="text-amber-500">Lot LAS ➔ YYZ:</b> ~$152/os x 2 = $304<br>
+            <span class="text-[10px] text-[var(--text-muted)] mt-2 block pt-2 border-t border-[var(--card-border)]">Przeliczone z: 600zł i 580zł (kurs 3.8)</span>
+          </div>
+          <div class="text-3xl mb-3">✈️</div>
+          <span class="text-xs uppercase font-bold text-[var(--text-muted)] block mb-1">Loty Wewn. (2 os.)</span>
+          <strong class="text-2xl font-black text-[var(--text-main)]">$620 USD</strong>
+        </div>
+        
+        <!-- WIDGET 2: AUTO -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 text-center hover:-translate-y-1 transition-transform relative group">
+          <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--card-border)] rounded-xl p-4 w-[280px] text-left text-[11px] shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+            <b class="text-amber-500">Wynajem auta (7 dni):</b> $400<br>
+            <b class="text-amber-500">Paliwo (~1150 mil):</b> ~$250<br>
+            <b class="text-amber-500">Miejskie parkingi (Vegas):</b> ~$40<br>
+            <span class="text-[10px] text-[var(--text-muted)] mt-2 block pt-2 border-t border-[var(--card-border)]">Obejmuje całą trasę Pętli SW i Dolinę Śmierci</span>
+          </div>
+          <div class="text-3xl mb-3">🚗</div>
+          <span class="text-xs uppercase font-bold text-[var(--text-muted)] block mb-1">Auto, Paliwo, Parking</span>
+          <strong class="text-2xl font-black text-[var(--text-main)]">$690 USD</strong>
+        </div>
+        
+        <!-- WIDGET 3: HOTELE -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 text-center hover:-translate-y-1 transition-transform border-blue-500/30 bg-blue-500/5 relative group">
+          <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--card-border)] rounded-xl p-4 w-[280px] text-left text-[11px] shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+            <b class="text-blue-400">Wszystkie noce (USA + CA):</b> ~$1500<br>
+            <span class="text-[10px] text-[var(--text-muted)] mt-2 block pt-2 border-t border-[var(--card-border)]">Ogromna oszczędność względem pierwotnego limitu $1990!</span>
+          </div>
+          <div class="text-3xl mb-3">🏨</div>
+          <span class="text-xs uppercase font-bold text-blue-400 block mb-1">Noclegi (13 Nocy)</span>
+          <strong class="text-2xl font-black text-emerald-500">~$1 500 USD</strong>
+        </div>
+        
+        <!-- WIDGET 4: ATRAKCJE & PAMIĄTKI -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 text-center hover:-translate-y-1 transition-transform relative group">
+          <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--card-border)] rounded-xl p-4 w-[290px] text-left text-[11px] shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+            <b class="text-rose-400">Non-Resident Pass:</b> $250 (1 bilet na auto)<br>
+            <b class="text-rose-400">Kanion Antylopy:</b> ~$80/os x 2 = $160<br>
+            <b class="text-rose-400">Pamiątki & Upominki:</b> $100 (tata, rodzina)<br>
+            <b class="text-rose-400">Niagara Bus (w 2 strony):</b> $30/os x 2 = $60<br>
+            <b class="text-rose-400">Kasyno (Vegas):</b> $25/os x 2 = $50<br>
+            <b class="text-rose-400">Valley of Fire + Horseshoe:</b> $25 (za auto)<br>
+            <span class="text-[10px] text-[var(--text-muted)] mt-2 block pt-2 border-t border-[var(--card-border)]">Obejmuje atrakcje, bilety, kasyno i pamiątki</span>
+          </div>
+          <div class="text-3xl mb-3">🎟️</div>
+          <span class="text-xs uppercase font-bold text-[var(--text-muted)] block mb-1">Atrakcje & Pamiątki</span>
+          <strong class="text-2xl font-black text-[var(--text-main)]">$645 USD</strong>
+        </div>
+
+        <!-- WIDGET 5: UBEZPIECZENIE & ETA -->
+        <div class="glass-card rounded-3xl p-5 sm:p-6 text-center hover:-translate-y-1 transition-transform relative group border-emerald-500/20">
+          <div class="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--card-border)] rounded-xl p-4 w-[280px] text-left text-[11px] shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+            <b class="text-emerald-400">Polisa (Wariant 3):</b> $179 USD (680 zł)<br>
+            <b class="text-emerald-400">Koszty leczenia:</b> 1 000 000 EUR<br>
+            <b class="text-emerald-400">eTA Kanada (2 os.):</b> $10 USD ($7 CAD x 2)<br>
+            <span class="text-[10px] text-[var(--text-muted)] mt-2 block pt-2 border-t border-[var(--card-border)]">Wszystkie formalności i polisa dla 2 osób</span>
+          </div>
+          <div class="text-3xl mb-3">🛡️</div>
+          <span class="text-xs uppercase font-bold text-[var(--text-muted)] block mb-1">Polisa & eTA (2 os.)</span>
+          <strong class="text-2xl font-black text-emerald-500">$189 USD</strong>
+        </div>
+
+        <!-- WIDGET 6: JEDZENIE + SUMA -->
+        <div class="glass-card rounded-3xl p-6 md:col-span-2 lg:col-span-5 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left hover:-translate-y-1 transition-transform relative group">
+          
+          <div class="absolute z-50 bottom-[110%] mb-2 left-1/2 sm:left-20 -translate-x-1/2 sm:translate-x-0 bg-[var(--card-bg)] backdrop-blur-xl border border-[var(--card-border)] rounded-xl p-4 w-[280px] text-left text-[11px] shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+            <b class="text-emerald-400">Dzienny budżet:</b> ~$107 (na 2 osoby)<br>
+            <span class="text-[10px] text-[var(--text-muted)] mt-2 block pt-2 border-t border-[var(--card-border)]">Wystarczające na codzienne obiady, kolacje, kawy i przekąski przez całe 13 dni (USA i Kanada).</span>
+          </div>
+          
+          <div>
+            <div class="text-xl mb-1">🍔</div>
+            <span class="text-xs uppercase font-bold text-[var(--text-muted)] block mb-1">Jedzenie (13 Dni)</span>
+            <strong class="text-xl font-black text-[var(--text-main)]">$1 400 USD</strong>
+          </div>
+          <div class="h-px sm:h-12 w-full sm:w-px bg-[var(--card-border)] my-4 sm:my-0"></div>
+          <div class="text-right">
+            <span class="text-xs uppercase font-black text-emerald-500 block mb-1">Całkowity Budżet Wspólny (2 Osoby)</span>
+            <strong class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">~$5 044 USD</strong>
+            <div class="text-xs font-bold text-[var(--text-muted)] mt-1">(~19 167 PLN) • Na osobę: ~$2 522 USD</div>
+          </div>
+        </div>
+        
+        <!-- Przemek's personal costs note -->
+        <div class="md:col-span-2 lg:col-span-5 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="text-2xl">🛫</div>
+              <div>
+                <span class="text-[10px] sm:text-xs font-bold text-indigo-400 uppercase tracking-widest block">Twoje koszty indywidualne (Przemek)</span>
+                <p class="text-sm font-medium text-[var(--text-main)]">
+                  Lot Lufthansa: <strong class="text-indigo-400">2900 PLN (~$763 USD)</strong> • eSIM Saily: <strong class="text-indigo-400">$36 USD (~137 PLN)</strong> • ESTA (USA): <strong class="text-indigo-400">$21 USD (~80 PLN)</strong>
+                </p>
+              </div>
+            </div>
+            <div class="text-right sm:border-l sm:border-indigo-500/20 sm:pl-4">
+              <span class="text-[10px] uppercase font-bold text-[var(--text-muted)] block">Suma indywidualna</span>
+              <strong class="text-lg font-black text-indigo-400">~3 117 PLN (~$820 USD)</strong>
+              <div class="text-[10px] text-emerald-400 font-semibold">(Gabi ma lot, eSIM i ESTA z firmy / ważne)</div>
+            </div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- SHOPPING & SOUVENIRS GUIDE (PRZYPOMINAJKA: CO KUPIĆ) -->
+    <div class="pt-4 pb-12">
+      <div class="glass-card rounded-[2rem] p-6 sm:p-8 border border-amber-500/20 relative overflow-hidden">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="text-3xl">🎁</span>
+          <div>
+            <span class="text-[10px] sm:text-xs font-bold text-amber-500 uppercase tracking-widest block">Lista Zakupów & Pamiątek ($100 USD w budżecie)</span>
+            <h3 class="text-2xl sm:text-3xl font-black font-bebas tracking-wide text-[var(--text-main)]">Co Przywieźć z Podróży? (Ściągawka)</h3>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Dla Taty (Kanada) -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-red-500 bg-red-500/5 space-y-2">
+            <span class="text-xs font-bold text-red-400 uppercase tracking-wider block">🍁 Wyjątkowo dla Taty (Top Pomysły)</span>
+            <p class="text-sm font-semibold text-[var(--text-main)]">Garaż, marzenia o Kanadzie & pasje:</p>
+            <ul class="text-xs text-[var(--text-muted)] space-y-2 list-disc list-inside leading-relaxed">
+              <li>
+                <strong class="text-emerald-400">🚗 Ramka na tablicę z salonu w Toronto:</strong> 
+                Wizyta w dziale części salonu (np. <em>Downtown Ford</em>). Ramka z nazwą dealera (gratis lub $5–$10 CAD) – do polskiego auta!
+              </li>
+              <li>
+                <strong class="text-emerald-400">📖 Katalog salonowy auta (Brochure):</strong> 
+                Gruby prospekt (Mustang / F-150 / RAM w wersji CA) – z salonu gratis!
+              </li>
+              <li>
+                <strong class="text-emerald-400">🧢 Czapka mechanika Canadian Tire:</strong> 
+                Kultowa bejsbolówka z czerwonym trójkątem ($15–$20 CAD).
+              </li>
+              <li>
+                <strong class="text-emerald-400">🎵 Winyl z kultowego Sonic Boom:</strong> 
+                Oryginalna płyta z największego sklepu muzycznego w Toronto (np. Neil Young, The Band, $20–$35 CAD).
+              </li>
+              <li>
+                <strong class="text-emerald-400">🌭 Rzemieślnicza musztarda Kozlik's:</strong> 
+                Legendarna musztarda z St. Lawrence Market (np. z klonem/whisky, $8–$10 CAD).
+              </li>
+              <li>
+                <strong class="text-emerald-400">🌲 Balsam do rąk ze świerku:</strong> 
+                Prawdziwy balsam drwali z żywicy świerkowej na zmęczone dłonie ($10–$15 CAD).
+              </li>
+              <li>
+                <strong class="text-[var(--text-main)]">Tablica Ontario do garażu:</strong> 
+                Metalowa tablica <em>"Yours to Discover"</em> (Kensington Market, $15–$25 CAD).
+              </li>
+              <li>
+                <strong class="text-[var(--text-main)]">Błystka Williams Wabler:</strong> 
+                Złocona 24k złotem/srebrem blacha na ryby z Canadian Tire (~$15 CAD).
+              </li>
+            </ul>
+          </div>
+
+          <!-- Dla Bliskich & Znajomych -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-emerald-500 bg-emerald-500/5 space-y-2">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block">🍪 Dla Rodziny i Znajomych</span>
+            <p class="text-sm font-semibold text-[var(--text-main)]">Smaki i retro klasyki:</p>
+            <ul class="text-xs text-[var(--text-muted)] space-y-1.5 list-disc list-inside leading-relaxed">
+              <li><strong class="text-[var(--text-main)]">Ciasteczka klonowe:</strong> <em>Maple Leaf Cream Cookies</em> z marketu Metro/No Frills ($3-4 CAD). Hit!</li>
+              <li><strong class="text-[var(--text-main)]">Syrop klonowy:</strong> Szklana butelka w kształcie liścia (Grade A Amber).</li>
+              <li><strong class="text-[var(--text-main)]">Żetony z kasyn w Vegas:</strong> Prawdziwy żeton za $1-$5 przy stole w Bellagio lub MGM.</li>
+              <li><strong class="text-[var(--text-main)]">Retro Route 66:</strong> Tablice rejestracyjne, magnesy i otwieracze z Seligman.</li>
+            </ul>
+          </div>
+
+          <!-- Zasady Celne & Bagaż -->
+          <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-500 bg-amber-500/5 space-y-2">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">⚠️ Zasady Pakowania i Cła</span>
+            <p class="text-sm font-semibold text-[var(--text-main)]">Ważne przed lotem do Polski:</p>
+            <ul class="text-xs text-[var(--text-muted)] space-y-1.5 list-disc list-inside leading-relaxed">
+              <li><strong class="text-amber-400">Płyny > 100ml:</strong> Syrop klonowy i butelki wina MUSZĄ lecieć w dużej walizce rejestrowanej!</li>
+              <li><strong class="text-amber-400">Zakaz wwozu mięsa:</strong> Suszona wołowina (Beef Jerky) z USA jest zakazana w prawie UE. Zjeść na trasie!</li>
+              <li><strong class="text-amber-400">Pamiątki z parków:</strong> Oficjalne przypinki (piny) i naszywki rangerskie w Bryce i Grand Canyon.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  
+</div>
+
+<div id="view-harmonogram" class="tab-view transition-opacity duration-300 opacity-0 hidden">
+<div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-28 space-y-12">
+    
+    <!-- HEADER -->
+    <header class="text-center space-y-4">
+      <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-500 text-xs font-bold uppercase tracking-widest mb-2 shadow-lg shadow-violet-500/10 backdrop-blur-md">
+        Rezerwacje i Limity
+      </div>
+      <h1 class="font-bebas text-6xl sm:text-7xl lg:text-8xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-amber-400 drop-shadow-lg pb-2">
+        HARMONOGRAM NOCLEGÓW
+      </h1>
+      <p class="text-[var(--text-main)] text-base sm:text-lg max-w-2xl mx-auto font-medium bg-[var(--card-bg)] backdrop-blur-md px-6 py-2 rounded-full border border-[var(--card-border)] shadow-sm">
+        Gdzie, kiedy i za ile rezerwować bazę dla 13 nocy wyprawy, aby idealnie zamknąć się w budżecie <strong>$1 990 USD</strong> (~7 562 PLN).
+      </p>
+      
+      <div class="mt-8 inline-flex flex-col sm:flex-row items-center gap-3 p-4 rounded-2xl glass-card text-amber-500 text-sm font-bold border-amber-500/20">
+        <span class="text-2xl">⚠️</span> 
+        <span>Wszystkie limity poniżej to kwoty <strong>BRUTTO (razem z podatkami i resort fees)</strong> za pokój 2-osobowy!</span>
+      </div>
+    </header>
+
+    <!-- KEY TIPS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+      <div class="glass-card rounded-[2rem] p-6 hover:-translate-y-2 transition-all group">
+        <span class="inline-block w-12 h-12 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform font-bebas text-3xl">1</span>
+        <h3 class="text-lg font-black text-[var(--text-main)] mb-2">Total with Taxes</h3>
+        <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+          W USA ceny początkowe na portalach (np. Booking) <strong>nie zawierają</strong> podatków (ok. 12-15%) ani opłat Resort Fee w Vegas ($45/noc). Zawsze patrz na końcową kwotę podsumowania przed opłatą!
+        </p>
+      </div>
+      <div class="glass-card rounded-[2rem] p-6 hover:-translate-y-2 transition-all group">
+        <span class="inline-block w-12 h-12 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform font-bebas text-3xl">2</span>
+        <h3 class="text-lg font-black text-[var(--text-main)] mb-2">Lone Pine to Priorytet</h3>
+        <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+          Miasteczko Lone Pine (Nocleg 23.10) ma zaledwie kilka moteli, a październik to szczyt sezonu na wspinaczkę na Mount Whitney. Rezerwuj ten piątkowy nocleg jako pierwszy.
+        </p>
+      </div>
+      <div class="glass-card rounded-[2rem] p-6 hover:-translate-y-2 transition-all group">
+        <span class="inline-block w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-500 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform font-bebas text-3xl">3</span>
+        <h3 class="text-lg font-black text-[var(--text-main)] mb-2">Brak Auta w Kanadzie</h3>
+        <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+          Zwracacie samochód na lotnisku LAS przed wylotem. W Toronto hotel rezerwujcie w Downtown, z łatwym dojściem pieszo z dworca Union Station (dojazd UP Express z YYZ).
+        </p>
+      </div>
+    </div>
+
+    <!-- MAIN TABLE -->
+    <div class="pt-8 pb-10">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+        <h2 class="text-3xl sm:text-4xl font-black font-bebas tracking-wide text-[var(--text-main)]">Zestawienie 9 Baz</h2>
+        <span class="glass-card px-5 py-2.5 rounded-full text-sm font-bold text-violet-400 border-violet-500/30 bg-[var(--card-bg)] backdrop-blur-md">
+          Łączny Limit: $1 990 USD
+        </span>
+      </div>
+
+      <div class="glass-card rounded-[2rem] overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-black/5 border-b border-[var(--card-border)]">
+              <tr class="text-[var(--text-muted)] text-xs uppercase tracking-widest">
+                <th class="px-6 py-5 font-bold">#</th>
+                <th class="px-6 py-5 font-bold">Miejscowość</th>
+                <th class="px-6 py-5 font-bold">Daty (Noce)</th>
+                <th class="px-6 py-5 font-bold">Limit za noc</th>
+                <th class="px-6 py-5 font-bold">Limit łączny</th>
+                <th class="px-6 py-5 font-bold min-w-[300px]">Rekomendowane Hotele</th>
+                <th class="px-6 py-5 font-bold text-center">Rezerwacja</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--card-border)] text-[var(--text-main)]">
+              <!-- Row 1 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-blue-500 text-2xl">1</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Nowy Jork</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Manhattan</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">15–16.10 (Czw–Pt)</strong>
+                  <span class="text-xs text-blue-400 font-bold">1 Noc (In: 15:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $300</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $174.48</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$174.48</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  Przedłużenie pokoju w tym samym hotelu konferencyjnym Asany. Zapobiegnie to noszeniu bagaży przed wylotem do Vegas.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://secure.booking.com/confirmation.pl.html?label=gen173nr-10CAEoggI46AdIM1gEaLYBiAEBmAEzuAEHyAEM2AED6AEB-AEBiAIBqAIBuALq3rnVBsACAdICJDk5NTUwNDU4LTRhOTQtNDYzMi04ZDViLTQ5MzQ3YzljM2NhONgCAeACAQ&sid=c97c3e2d145ed00249ddbacaacc27390&aid=304142&auth_key=46DBh1JjtXOqjWb4&source=mytrips" target="_blank" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-blue-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">
+                    Potwierdzenie
+                  </a>
+                </td>
+              </tr>
+              <!-- Row 2 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-amber-500 text-2xl">2</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Las Vegas</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Sonesta Simply Suites</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">16–18.10 (Pt–Ndz)</strong>
+                  <span class="text-xs text-amber-400 font-bold">2 Noce (In: 16:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $240 (Total)</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $265.32</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$265.32</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  <em class="text-[var(--text-main)] font-semibold">The Linq, Flamingo, Horseshoe.</em> Uwaga na parking przy odbiorze auta!
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://secure.booking.com/confirmation.pl.html?label=gen173nr-10CAEoggI46AdIM1gEaLYBiAEBmAEzuAEHyAEM2AED6AEB-AEBiAIBqAIBuALq3rnVBsACAdICJDk5NTUwNDU4LTRhOTQtNDYzMi04ZDViLTQ5MzQ3YzljM2NhONgCAeACAQ&sid=c97c3e2d145ed00249ddbacaacc27390&aid=304142&auth_key=mTVvol738XNBsh5o&source=mytrips" target="_blank" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-blue-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">
+                    Potwierdzenie
+                  </a>
+                </td>
+              </tr>
+              <!-- Row 3 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-amber-500 text-2xl">3</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Kanab, Utah</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Quality Inn Kanab</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">18–19.10 (Ndz–Pon)</strong>
+                  <span class="text-xs text-amber-400 font-bold">1 Noc (In: 15:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $130</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $102.48</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$102.48</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  <em class="text-[var(--text-main)] font-semibold">Quail Park Lodge, Canyons Boutique, Quality Inn.</em> Darmowy parking pod drzwiami.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://secure.booking.com/confirmation.pl.html?label=gen173nr-10CAEoggI46AdIM1gEaLYBiAEBmAEzuAEHyAEM2AED6AEB-AEBiAIBqAIBuALq3rnVBsACAdICJDk5NTUwNDU4LTRhOTQtNDYzMi04ZDViLTQ5MzQ3YzljM2NhONgCAeACAQ&sid=c97c3e2d145ed00249ddbacaacc27390&aid=304142&auth_key=UPkJ7p6lt1cUlfRD&source=mytrips" target="_blank" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-blue-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">
+                    Potwierdzenie
+                  </a>
+                </td>
+              </tr>
+              <!-- Row 4 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-amber-500 text-2xl">4</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Page, Arizona</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Wingate by Wyndham</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">19–21.10 (Pon–Śr)</strong>
+                  <span class="text-xs text-amber-400 font-bold">2 Noce (In: 15:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $300 (Total)</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $235.18</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$235.18</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  <em class="text-[var(--text-main)] font-semibold">Hyatt Place, Courtyard Marriott.</em> Zaledwie 10 min do Kanionu Antylopy.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://secure.booking.com/confirmation.pl.html?label=gen173nr-10CAEoggI46AdIM1gEaLYBiAEBmAEzuAEHyAEM2AED6AEB-AEBiAIBqAIBuALq3rnVBsACAdICJDk5NTUwNDU4LTRhOTQtNDYzMi04ZDViLTQ5MzQ3YzljM2NhONgCAeACAQ&sid=c97c3e2d145ed00249ddbacaacc27390&aid=304142&auth_key=fqD7CDXq0tfPG6sd&source=mytrips" target="_blank" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-blue-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">
+                    Potwierdzenie
+                  </a>
+                </td>
+              </tr>
+              <!-- Row 5 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-amber-500 text-2xl">5</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Williams, AZ</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Quality Inn Williams</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">21–22.10 (Śr–Czw)</strong>
+                  <span class="text-xs text-amber-400 font-bold">1 Noc (In: 15:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $130</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $81.87</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$81.87</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  <em class="text-[var(--text-main)] font-semibold">Grand Canyon Hotel, Route 66 Inn.</em> O połowę tańsze i lepsze niż hotel w Tusayan.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://secure.booking.com/confirmation.pl.html?label=gen173nr-10CAEoggI46AdIM1gEaLYBiAEBmAEzuAEHyAEM2AED6AEB-AEBiAIBqAIBuALq3rnVBsACAdICJDk5NTUwNDU4LTRhOTQtNDYzMi04ZDViLTQ5MzQ3YzljM2NhONgCAeACAQ&sid=c97c3e2d145ed00249ddbacaacc27390&aid=304142&auth_key=31MB745y3ky8HKDL&source=mytrips" target="_blank" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-blue-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">
+                    Potwierdzenie
+                  </a>
+                </td>
+              </tr>
+              <!-- Row 6 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-amber-500 text-2xl">6</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Las Vegas (Strip)</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">MGM Grand</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">22–23.10 (Czw–Pt)</strong>
+                  <span class="text-xs text-amber-400 font-bold">1 Noc (In: 15:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $100</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $125.00</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$125.00</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  Kultowy resort na bulwarze. Świetna cena za pobyt w czwartek.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <span class="inline-block px-4 py-2 bg-emerald-600/50 text-white text-xs font-bold rounded-lg whitespace-nowrap">Potwierdzone</span>
+                </td>
+              </tr>
+              <!-- Row 7 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-rose-500 text-2xl">7</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Beatty, NV</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Death Valley Inn</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">23–24.10 (Pt–Sob)</strong>
+                  <span class="text-xs text-rose-400 font-bold">1 Noc (In: 15:00, Out: 11:00)</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: $160</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: $115.71</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">$115.71</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  <em class="text-[var(--text-main)] font-semibold">Dow Villa Motel, Best Western.</em> Super klimat miasteczka westernowego.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://secure.booking.com/confirmation.pl.html?label=gen173nr-10CAEoggI46AdIM1gEaLYBiAEBmAEzuAEHyAEM2AED6AEB-AEBiAIBqAIBuALq3rnVBsACAdICJDk5NTUwNDU4LTRhOTQtNDYzMi04ZDViLTQ5MzQ3YzljM2NhONgCAeACAQ&sid=c97c3e2d145ed00249ddbacaacc27390&aid=304142&auth_key=QrceKqtcYEeQOmiW&source=mytrips" target="_blank" class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 shadow-blue-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">
+                    Potwierdzenie
+                  </a>
+                </td>
+              </tr>
+              
+              <!-- Row 9 -->
+              <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-5 font-black font-bebas text-emerald-500 text-2xl">9</td>
+                <td class="px-6 py-5">
+                  <strong class="text-base block">Toronto, Kanada</strong>
+                  <span class="text-xs text-[var(--text-muted)] font-medium">Finał wyprawy</span>
+                </td>
+                <td class="px-6 py-5">
+                  <strong class="block">24–28.10</strong>
+                  <span class="text-xs text-emerald-400 font-bold">4 Noce</span>
+                </td>
+                <td class="px-6 py-5">
+                  <span class="text-xs text-[var(--text-muted)] line-through">Limit: ~$890</span><br>
+                  <strong class="text-base block text-emerald-400">Zarezerwowano: ~$400</strong>
+                </td>
+                <td class="px-6 py-5 font-black text-lg text-emerald-400">~$400.00</td>
+                <td class="px-6 py-5 text-sm text-[var(--text-muted)] whitespace-normal">
+                  Prywatne Airbnb w fenomenalnej cenie. Mocna oszczędność na sam koniec wyjazdu.
+                </td>
+                <td class="px-6 py-5 text-center align-middle">
+                  <a href="https://www.airbnb.pl/rooms/1856109" target="_blank" class="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20 text-white text-xs font-bold rounded-lg transition-colors shadow-lg whitespace-nowrap">Airbnb</a>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-violet-500/10 border-t-2 border-violet-500/30 text-violet-500">
+              <tr class="border-b border-violet-500/20">
+                <td class="px-6 py-4" colspan="3"><strong class="text-sm tracking-widest uppercase text-emerald-400">Całkowity Koszt Noclegów (13 Nocy)</strong></td>
+                <td class="px-6 py-4"><strong class="text-xl font-black text-emerald-400">~$1 500.00 USD</strong></td>
+                <td class="px-6 py-4" colspan="3"><span class="text-sm font-semibold text-emerald-400/80">Wszystkie noce zarezerwowane!</span></td>
+              </tr>
+              <tr class="bg-violet-500/20">
+                <td class="px-6 py-6" colspan="3"><strong class="text-lg tracking-widest uppercase text-[var(--text-main)]">Oszczędność (z budżetu $1990)</strong></td>
+                <td class="px-6 py-6"><strong class="text-3xl font-black text-amber-400">~$490 USD!</strong></td>
+                <td class="px-6 py-6" colspan="3"><strong class="text-base text-amber-400">~1 860 PLN (Zostaje w kieszeni!)</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  
+</div>
+
+<script>
+    const dayData = {
+      12: { title: "12 Października – Przylot do Nowego Jorku", badge: "Nowy Jork", desc: "Przylot transatlantycki do NYC (JFK/EWR). Zameldowanie i odpoczynek w hotelu.", hotelId: "hotel-card-nyc" },
+      13: { title: "13 Października – Asana Conf & Solo NYC", badge: "Nowy Jork", desc: "Dzień 1 konferencji Asana. Przemek zwiedza solo Nowy Jork.", hotelId: "hotel-card-nyc" },
+      14: { title: "14 Października – Dzień 2 Asana Conf", badge: "Nowy Jork", desc: "Dzień 2 konferencji. Spacer po Manhattanie i wieczorna kolacja.", hotelId: "hotel-card-nyc" },
+      15: { title: "15 Października – Praca zdalna", badge: "Nowy Jork", desc: "Praca zdalna, nocleg na własny koszt (U.S. Pacific Hotel).", hotelId: "hotel-card-nyc" },
+      16: { title: "16 Października – Lot do Vegas", badge: "Vegas", desc: "Wylot z NYC wieczorem, przylot do Las Vegas, odbiór Mustanga z wypożyczalni.", hotelId: "hotel-card-vegas1" },
+      17: { title: "17 Października – Las Vegas Relaks", badge: "Vegas", desc: "Regeneracja sił: spacer po The Strip, the Sphere i hotele tematyczne.", hotelId: "hotel-card-vegas1" },
+      18: { title: "18 Października – Valley of Fire ➔ Kanab", badge: "Roadtrip", desc: "Wyjazd z Vegas, trasa przez czerwone skały Valley of Fire State Park, dojazd do Kanab.", hotelId: "hotel-card-kanab" },
+      19: { title: "19 Października – Bryce Canyon ➔ Page", badge: "Park Narodowy", desc: "Poranny wjazd do Bryce Canyon, punkty widokowe z krawędzi, i malownicza trasa do Page.", hotelId: "hotel-card-page" },
+      20: { title: "20 Października – Skarby Nawaho", badge: "Page, AZ", desc: "Magiczny Kanion Antylopy rano oraz podziwianie zakola Horseshoe Bend pod wieczór.", hotelId: "hotel-card-page" },
+      21: { title: "21 Października – Grand Canyon ➔ Williams", badge: "Park Narodowy", desc: "Wjazd przez Desert View Watchtower (South Rim), i przejazd do miasteczka na Route 66.", hotelId: "hotel-card-williams" },
+      22: { title: "22 Października – Route 66 ➔ Vegas", badge: "Route 66", desc: "Z Williams przez Seligman (Route 66). Nocleg w gigantycznym MGM Grand na Las Vegas Strip.", hotelId: "hotel-card-vegas2" },
+      23: { title: "23 Października – Dolina Śmierci", badge: "Nevada / CA", desc: "Wyjazd z Vegas, epicka trasa przez Death Valley (Zabriskie, Badwater), nocleg w Beatty (Death Valley Inn).", hotelId: "hotel-card-beatty" },
+      24: { title: "24 Października – Wylot do Kanady", badge: "Transfer", desc: "Poranny wyjazd z Beatty do LAS (ok. 1h 45m). Zwrot auta i lot do Toronto! Nocleg w Toronto.", hotelId: "hotel-card-toronto" },
+      25: { title: "25 Października – Niagara Falls", badge: "Ontario", desc: "Wycieczka nad wodospad Niagara (pociąg lub autobus) z Toronto.", hotelId: "hotel-card-toronto" },
+      26: { title: "26 Października – Toronto Downtown", badge: "Toronto", desc: "Zwiedzanie miasta - CN Tower, Waterfront, klimatyczne dzielnice.", hotelId: "hotel-card-toronto" },
+      27: { title: "27 Października – Relaks w Toronto", badge: "Toronto", desc: "Dzień pełnego luzu – Distillery District, kawiarnie, zakupy.", hotelId: "hotel-card-toronto" },
+      28: { title: "28 Października – Wylot do WAW", badge: "Powrót", desc: "Spokojne rano w mieście, dojazd na YYZ i wylot bezpośrednim lotem LOT (Dreamliner).", hotelId: "hotel-card-toronto" },
+      29: { title: "29 Października – Lądowanie", badge: "Polska", desc: "Lądowanie w Warszawie, odbiór bagaży. Koniec wyprawy!", hotelId: "" }
+    };
+
+    function selectDay(dayId) {
+      document.querySelectorAll('.hotel-card').forEach(card => card.classList.remove('highlighted'));
+      
+      const data = dayData[dayId];
+      if(data) {
+        document.getElementById('detail-date').innerHTML = data.title;
+        document.getElementById('detail-desc').innerText = data.desc;
+        document.getElementById('detail-badge').innerText = data.badge;
+
+        if (data.hotelId) {
+          const hotelElem = document.getElementById(data.hotelId);
+          if (hotelElem) {
+            hotelElem.classList.add('highlighted');
+            hotelElem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+        icon.innerText = '🌙';
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        icon.innerText = '☀️';
+      }
+    }
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      document.getElementById('theme-icon').innerText = '🌙';
+    }
+  
+    function switchTab(tabId) {
+      // Buttons
+      document.querySelectorAll('.nav-btn[id^="nav-"]').forEach(btn => {
+        btn.classList.remove('active', 'text-amber-500', 'text-violet-500');
+        btn.classList.add('text-[var(--text-muted)]');
+      });
+      const activeBtn = document.getElementById('nav-' + tabId);
+      activeBtn.classList.add('active');
+      activeBtn.classList.remove('text-[var(--text-muted)]');
+      if (tabId === 'calendar') activeBtn.classList.add('text-amber-500');
+      if (tabId === 'dashboard') activeBtn.classList.add('text-amber-500');
+      if (tabId === 'harmonogram') activeBtn.classList.add('text-violet-500');
+
+      // Views
+      document.querySelectorAll('.tab-view').forEach(view => {
+        if (view.id === 'view-' + tabId) {
+          view.classList.remove('hidden');
+          // small timeout to allow display:block to apply before opacity transition
+          setTimeout(() => {
+            view.classList.remove('opacity-0');
+            view.classList.add('opacity-100');
+          }, 20);
+        } else {
+          view.classList.remove('opacity-100');
+          view.classList.add('opacity-0');
+          setTimeout(() => {
+            if (view.classList.contains('opacity-0')) {
+              view.classList.add('hidden');
+            }
+          }, 300); // match duration-300
+        }
+      });
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+</script>
+</body>
+</html>
