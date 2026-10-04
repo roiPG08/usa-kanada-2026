@@ -1394,13 +1394,13 @@
         CO SPAKOWAĆ DO USA & KANADY
       </h1>
       <p class="text-[var(--text-main)] text-sm sm:text-base max-w-3xl mx-auto font-medium bg-[var(--card-bg)] backdrop-blur-md px-6 py-2.5 rounded-full border border-[var(--card-border)] shadow-sm">
-        Interaktywna lista kontrolna. Zaznaczaj spakowane rzeczy – stan zapisuje się automatycznie w Twojej przeglądarce!
+        Interaktywna lista z podziałem na statusy: co już spakowane, co w domu, a co trzeba jeszcze zamówić lub dokupić!
       </p>
     </header>
 
-    <!-- PROGRESS BAR -->
-    <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto border border-emerald-500/30 shadow-2xl">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+    <!-- PROGRESS BAR & FILTER BAR -->
+    <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-4xl mx-auto border border-emerald-500/30 shadow-2xl space-y-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <span class="text-xs font-black uppercase tracking-widest text-emerald-400 block mb-1">Postęp pakowania</span>
           <h3 id="packing-progress-text" class="text-2xl font-black text-[var(--text-main)]">Spakowano: 0 / 0 rzeczy (0%)</h3>
@@ -1409,8 +1409,29 @@
           <span>🔄</span> Wyczyść zaznaczenia
         </button>
       </div>
+
       <div class="w-full bg-[var(--card-border)] rounded-full h-4 overflow-hidden p-0.5">
         <div id="packing-progress-bar" class="bg-gradient-to-r from-emerald-400 to-teal-400 h-full rounded-full transition-all duration-300 w-0"></div>
+      </div>
+
+      <!-- FILTER PILLS -->
+      <div class="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-[var(--card-border)]">
+        <span class="text-xs font-bold text-[var(--text-muted)] mr-2">Filtruj:</span>
+        <button onclick="filterPacking('all')" class="packing-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-white transition-all shadow" data-filter="all">
+          Wszystko
+        </button>
+        <button onclick="filterPacking('buy')" class="packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition-all" data-filter="buy">
+          🛒 Do kupienia / Zamówienia
+        </button>
+        <button onclick="filterPacking('packed')" class="packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all" data-filter="packed">
+          ✅ Już spakowane
+        </button>
+        <button onclick="filterPacking('home')" class="packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 transition-all" data-filter="home">
+          🏠 Mam w domu
+        </button>
+        <button onclick="filterPacking('usa')" class="packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all" data-filter="usa">
+          🇺🇸 Kupić w USA
+        </button>
       </div>
     </div>
 
@@ -1418,7 +1439,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
       <!-- 1. DOKUMENTY & FINANSE -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-blue-500">
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-blue-500 packing-card">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-xl">📄</div>
           <div>
@@ -1427,60 +1448,71 @@
           </div>
         </div>
         <div class="space-y-2 pt-2 border-t border-[var(--card-border)]">
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="doc-passport" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Paszporty (ważne min. 6 mies.)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Paszporty (ważne min. 6 mies.)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Oryginały dla obojga, miejcie też kopie w chmurze / telefonie.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
             <input type="checkbox" data-id="doc-esta-eta" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Wydrukowana ESTA & eTA</span>
-              <p class="text-xs text-[var(--text-muted)]">ESTA (USA) oraz oficjalna eTA (Kanada za $7 CAD). Wydruk w teczce.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Wydrukowana ESTA & eTA</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do wydruku</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">ESTA (USA) oraz oficjalna eTA (Kanada za $7 CAD z canada.ca).</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="doc-cc-driver" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Fizyczna Karta Kredytowa kierowcy</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Fizyczna Karta Kredytowa</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W portfelu</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Wypukła karta na nazwisko kierowcy na depozyt w Sixt za BMW X3.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="doc-license" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Prawo jazdy (Polskie + Międz.)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Prawo jazdy (Polskie)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W portfelu</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Oryginalne polskie prawo jazdy kierowcy.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
             <input type="checkbox" data-id="doc-insurance" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Polisa Ergo Hestia (Wariant 3)</span>
-              <p class="text-xs text-[var(--text-muted)]">Zapisany numer polisy i nr telefonu do Centrum Alarmowego (1M EUR KL).</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Polisa Ergo Hestia (Wariant 3)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Wariant 3 (1 000 000 EUR KL). Zapisać nr polisy i telefon alarmowy.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="doc-cards" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Karty Revolut / Zen w Apple Pay</span>
-              <p class="text-xs text-[var(--text-muted)]">Zgłoszony wyjazd w banku, sprawdzone limity transakcyjne.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="doc-pen" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Długopis (niebieski/czarny)</span>
-              <p class="text-xs text-[var(--text-muted)]">Do podpisywania papierowych rachunków z tipem w USA i deklaracji.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Długopis (czarny/niebieski)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Do podpisywania papierowych rachunków z napiwkiem w restauracjach w USA.</p>
             </div>
           </label>
         </div>
       </div>
 
       <!-- 2. STRÓJ NA SOBIE DO SAMOLOTU -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-amber-500">
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-amber-500 packing-card">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-xl">✈️</div>
           <div>
@@ -1489,38 +1521,53 @@
           </div>
         </div>
         <div class="space-y-2 pt-2 border-t border-[var(--card-border)]">
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="wear-shoes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Buty Hoka z Gore-Texem</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Buty Hoka z Gore-Texem</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Amortyzacja na beton NYC, tarcza przed czerwonym pyłem i deszczem.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="wear-jacket" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Lekka kurtka puchowa (Packable)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Lekka kurtka puchowa (Packable)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Cienka puchówka kompresyjna. Zbawienie o świcie w Bryce (0°C) i w NYC.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="wear-hoodie" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Ciepła bluza z kapturem / polar</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Ciepła bluza z kapturem / polar</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Najgrubsza warstwa środkowa, oszczędza masę miejsca w walizce.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="wear-pants" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Wygodne długie spodnie (np. jeansy)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Wygodne długie spodnie (jeansy)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Cięższe spodnie ubieracie na lot transatlantycki.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="wear-tshirt" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Wygodny T-shirt bazowy</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Wygodny T-shirt bazowy</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Oddychająca pierwsza warstwa.</p>
             </div>
           </label>
@@ -1528,7 +1575,7 @@
       </div>
 
       <!-- 3. WALIZKA KABINOWA - GARDEROBA -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-emerald-500">
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-emerald-500 packing-card">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-xl">🧳</div>
           <div>
@@ -1537,184 +1584,277 @@
           </div>
         </div>
         <div class="space-y-2 pt-2 border-t border-[var(--card-border)]">
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-tshirts" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">T-shirty (5-6 sztuk)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">T-shirty (5-6 sztuk)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Najlepiej jednolite lub z wełny merino (nie łapią zapachów).</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-pants2" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">1x Długie spodnie na zmianę</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">1x Długie spodnie na zmianę</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Lekkie dresowe lub materiałowe na długie godziny w BMW X3.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-shorts" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">1x Krótkie spodenki</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">1x Krótkie spodenki</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Na upalne Las Vegas Strip i Dolinę Śmierci (~30°C).</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-underwear" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Bielizna & skarpetki (na 6-7 dni)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Bielizna & skarpetki (na 6-7 dni)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">W połowie wyjazdu pranie w pralce na monety za $2 w motelu!</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
             <input type="checkbox" data-id="gear-socks-thick" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">2-3 pary skarpet trekkingowych</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">2-3 pary skarpet trekkingowych</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Lekko amortyzowane za kostkę. Ratuje stopy przed pęcherzami.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-swimwear" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Strój kąpielowy / kąpielówki</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Strój kąpielowy / kąpielówki</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Na baseny i wieczorne jacuzzi w hotelu w Vegas.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-shoes2" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Lekkie buty na zmianę / klapki</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Lekkie buty na zmianę / klapki</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Płaskie klapki pod prysznic i do hotelowego basenu.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="gear-sun-cap" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Okulary przeciwsłoneczne + czapka</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Okulary z UV + czapka z daszkiem</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W szafie</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Pustynne słońce w Nevadzie i Arizonie pali bez litości.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="gear-cubes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Worki kompresyjne (Packing Cubes)</span>
-              <p class="text-xs text-[var(--text-muted)]">Zmniejszają objętość ubrań o 40% w małej walizce.</p>
             </div>
           </label>
         </div>
       </div>
 
-      <!-- 4. ELEKTRONIKA & GADŻETY -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-cyan-500">
+      <!-- 4. ELEKTRONIKA & VAPING -->
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-cyan-500 packing-card">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-xl">🔌</div>
           <div>
-            <h3 class="text-lg font-black font-bebas tracking-wide text-[var(--text-main)]">Elektronika & Gadżety</h3>
+            <h3 class="text-lg font-black font-bebas tracking-wide text-[var(--text-main)]">Elektronika & Vaping</h3>
             <span class="text-[11px] font-bold text-cyan-400 uppercase tracking-widest">Tylko w podręcznym!</span>
           </div>
         </div>
         <div class="space-y-2 pt-2 border-t border-[var(--card-border)]">
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
+            <input type="checkbox" data-id="el-vape-liquid" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Liquid do e-peta (zapas na 2 tyg.)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Zamówić / Kupić</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Buteleczki do 100ml w przezroczystym woreczku. W USA inne smaki i wysokie ceny.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
+            <input type="checkbox" data-id="el-vape-pods" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Pody / grzałki do e-peta (zapas)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Zamówić / Kupić</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Zapasowe kartridże, żeby nie szukać kompatybilnych w vape shopach w USA.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
+            <input type="checkbox" data-id="el-vape-device" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">E-papieros (urządzenie)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Opróżniony tank na czas lotu! ZAKAZ w luku rejestrowanym.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
             <input type="checkbox" data-id="el-adapter" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">2x Adapter do gniazdek USA (typ A/B)</span>
-              <p class="text-xs text-[var(--text-muted)]">Płaskie bolce amerykańskie. Najlepiej z kilkoma portami USB.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">2x Adapter do gniazdek USA (typ A/B)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia / 🏠</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Płaskie bolce amerykańskie. Najlepiej z portami USB-C.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="el-powerbank" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Powerbank (min. 10 000 – 20 000 mAh)</span>
-              <p class="text-xs text-[var(--text-muted)]">ZAKAZ w luku – musi być w carry-on! Zdjęcia i nawigacja wysysają baterię.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Powerbank (10 000 – 20 000 mAh)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">ZAKAZ w luku – tylko w carry-on! Zdjęcia i nawigacja wysysają baterię.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="el-cables" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Kable USB-C / Lightning</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Kable USB-C / Lightning</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">1 długi do łóżka w motelu i 1 krótki do BMW X3.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="el-mount" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Uchwyt na telefon do kratki w aucie</span>
-              <p class="text-xs text-[var(--text-muted)]">Kompaktowy uchwyt w rezerwie do nawigacji w BMW.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="el-headphones" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Słuchawki (z kablem / jackiem)</span>
-              <p class="text-xs text-[var(--text-muted)]">Do systemu rozrywki pokładowej w samolocie Lufthansy.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="el-vape" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">E-papieros (pusty zbiornik na lot!)</span>
-              <p class="text-xs text-[var(--text-muted)]">Tylko w carry-on! Wypalony tank zapobiega wyciekowi przez ciśnienie.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Uchwyt do kratki w BMW X3</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Kompaktowy uchwyt w rezerwie do nawigacji.</p>
             </div>
           </label>
         </div>
       </div>
 
-      <!-- 5. APTECZKA & PŁYNY -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-rose-500">
+      <!-- 5. APTECZKA, ZDROWIE & KOLANO -->
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-rose-500 packing-card">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-rose-500/10 flex items-center justify-center text-xl">💊</div>
           <div>
-            <h3 class="text-lg font-black font-bebas tracking-wide text-[var(--text-main)]">Apteczka & Płyny</h3>
-            <span class="text-[11px] font-bold text-rose-400 uppercase tracking-widest">Woreczek 1L • Płyny do 100ml</span>
+            <h3 class="text-lg font-black font-bebas tracking-wide text-[var(--text-main)]">Apteczka, Zdrowie & Kolano</h3>
+            <span class="text-[11px] font-bold text-rose-400 uppercase tracking-widest">Woreczek 1L • Bezpieczeństwo</span>
           </div>
         </div>
         <div class="space-y-2 pt-2 border-t border-[var(--card-border)]">
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="med-lips" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Pomadka ochronna (Carmex/Bebe)</span>
-              <p class="text-xs text-[var(--text-muted)]">Pustynia Mojave i kaniony mają 10% wilgotności – usta pękają w 1 dzień!</p>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="packed">
+            <input type="checkbox" data-id="med-tapes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded" checked>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Tapy na kolano (Kinezjotaping)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">✅ Już spakowane</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Stabilizacja stawu na schody w Antelope Canyon i chodzenie po NYC.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="med-eyedrops" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Nawilżające krople do oczu</span>
-              <p class="text-xs text-[var(--text-muted)]">Ulga dla oczu po suchym powietrzu samolotu i pustynnym pyle.</p>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="packed">
+            <input type="checkbox" data-id="med-dexak" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded" checked>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Dexak na kolano (p/zapalny)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">✅ Już spakowane</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Szybki lek przeciwbólowy i przeciwzapalny na przeciążenia stawów.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="packed">
+            <input type="checkbox" data-id="med-plasters-reg" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded" checked>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Plastry opatrunkowe</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">✅ Już spakowane</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Zwykłe plastry na drobne skaleczenia i otarcia.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
             <input type="checkbox" data-id="med-blisters" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Plastry na pęcherze (Compeed)</span>
-              <p class="text-xs text-[var(--text-muted)]">Przy 20 tys. kroków dziennie po Nowym Jorku to absolutny ratunek.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Plastry na pęcherze (Compeed)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Specjalne hydrokoloidowe plastry na pięty. W NYC ratują dzień.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
+            <input type="checkbox" data-id="med-lips" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Pomadka ochronna (Carmex/Bebe)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Pustynia Mojave i kaniony mają 10% wilgotności – usta pękają natychmiast!</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
+            <input type="checkbox" data-id="med-eyedrops" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Krople nawilżające do oczu</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Sztuczne łzy – ulga dla oczu po suchym powietrzu samolotu i pustynnym pyle.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
+            <input type="checkbox" data-id="med-electrolytes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Elektrolity musujące (Plusssz)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Do bidonu w upalne dni w Vegas i Kanionach. Likwidują ból głowy.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="med-pain" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Leki p/bólowe (Ibuprom / Paracetamol)</span>
-              <p class="text-xs text-[var(--text-muted)]">Na ból głowy po zmianie strefy czasowej (Jet Lag) i zakwasy.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Leki p/bólowe (Ibuprom/Paracetamol)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Na Jet Lag po lądowaniu w NYC i zakwasy.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="med-stomach" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Leki na żołądek (Stoperan / węgiel)</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Leki na żołądek (Stoperan / węgiel)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Amerykańskie fast-foody i ostre przyprawy potrafią zaskoczyć.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="med-toiletry" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Mini pasta, szczoteczki, mały dezodorant</span>
-              <p class="text-xs text-[var(--text-muted)]">Wszystkie płyny w pojemniczkach do 100 ml w torebce strunowej.</p>
             </div>
           </label>
         </div>
       </div>
 
       <!-- 6. LIFE HACKI & DROBIAZGI -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-purple-500">
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-purple-500 packing-card">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-purple-500/10 flex items-center justify-center text-xl">💡</div>
           <div>
@@ -1723,46 +1863,51 @@
           </div>
         </div>
         <div class="space-y-2 pt-2 border-t border-[var(--card-border)]">
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="buy">
+            <input type="checkbox" data-id="hack-wipes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Chusteczki nawilżane (mała paczka)</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 whitespace-nowrap">🛒 Do kupienia</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Niezbędne przy burgerach z In-N-Out w aucie i po piaszczystych szlakach.</p>
+            </div>
+          </label>
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="hack-ziploc" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">3-4 Woreczki strunowe Ziploc</span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">3-4 Woreczki strunowe Ziploc</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W kuchni</span>
+              </div>
               <p class="text-xs text-[var(--text-muted)]">Ochrona telefonu przed mikroskopijnym pyłem w Kanionie Antylopy.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="hack-earplugs" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Stopery do uszu & opaska na oczy</span>
-              <p class="text-xs text-[var(--text-muted)]">Do samolotu oraz na hałaśliwe klimatyzatory w motelach.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Stopery do uszu & opaska na oczy</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Do samolotu oraz na głośne klimatyzatory w motelach.</p>
             </div>
           </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="hack-electrolytes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Elektrolity w tabletkach (Plusssz)</span>
-              <p class="text-xs text-[var(--text-muted)]">Wrzucone do bidonu w upalny dzień gaszą pragnienie i likwidują ból głowy.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
+          <label class="packing-item flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group" data-status="home">
             <input type="checkbox" data-id="hack-bottle" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Pusta butelka wielorazowa / bidon</span>
-              <p class="text-xs text-[var(--text-muted)]">Przechodzi przez bramki pusta, nalewacie darmową lodowatą wodę na lotnisku.</p>
-            </div>
-          </label>
-          <label class="flex items-start gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors group">
-            <input type="checkbox" data-id="hack-wipes" class="packing-cb mt-1 accent-emerald-500 w-4 h-4 rounded">
-            <div>
-              <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Chusteczki nawilżane (mała paczka)</span>
-              <p class="text-xs text-[var(--text-muted)]">Niezbędne przy burgerach z In-N-Out i po piaszczystych szlakach.</p>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-[var(--text-main)] group-hover:text-emerald-400">Pusta butelka wielorazowa / bidon</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 whitespace-nowrap">🏠 W domu</span>
+              </div>
+              <p class="text-xs text-[var(--text-muted)]">Przechodzi pusta przez bramki, nalewacie darmową lodowatą wodę na lotnisku.</p>
             </div>
           </label>
         </div>
       </div>
 
       <!-- 7. KUPOWANE W USA (WALMART / TARGET) -->
-      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-slate-500 md:col-span-2 lg:col-span-3">
+      <div class="glass-card rounded-3xl p-6 space-y-4 border-l-4 border-l-slate-500 md:col-span-2 lg:col-span-3 packing-card" data-status="usa">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-slate-500/10 flex items-center justify-center text-xl">🛒</div>
           <div>
@@ -1772,19 +1917,31 @@
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 border-t border-[var(--card-border)]">
           <div class="p-3 bg-white/5 rounded-2xl border border-[var(--card-border)]">
-            <strong class="text-sm font-bold text-amber-400 block mb-1">🧊 Styropianowa lodówka ($5-8)</strong>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <strong class="text-sm font-bold text-amber-400">🧊 Styropianowa lodówka ($5-8)</strong>
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-500/20 text-purple-300">USA</span>
+            </div>
             <p class="text-xs text-[var(--text-muted)]">Kupujecie w Walmartcie styropianowy cooler + worek lodu za $2 do bagażnika BMW. Zimna woda na pustyni gwarantowana!</p>
           </div>
           <div class="p-3 bg-white/5 rounded-2xl border border-[var(--card-border)]">
-            <strong class="text-sm font-bold text-amber-400 block mb-1">🧴 Duży krem SPF w sprayu</strong>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <strong class="text-sm font-bold text-amber-400">🧴 Duży krem SPF w sprayu</strong>
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-500/20 text-purple-300">USA</span>
+            </div>
             <p class="text-xs text-[var(--text-muted)]">Amerykańskie spraye Banana Boat SPF 50 są tanie i wygodne. Szkoda marnować limitu płynów w bagażu podręcznym.</p>
           </div>
           <div class="p-3 bg-white/5 rounded-2xl border border-[var(--card-border)]">
-            <strong class="text-sm font-bold text-amber-400 block mb-1">🧼 Duży żel i szampon</strong>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <strong class="text-sm font-bold text-amber-400">🧼 Duży żel i szampon</strong>
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-500/20 text-purple-300">USA</span>
+            </div>
             <p class="text-xs text-[var(--text-muted)]">Kupicie litrowy żel za $2-3 na miejscu. W motelach i hotelach kosmetyki są też darmowe.</p>
           </div>
           <div class="p-3 bg-white/5 rounded-2xl border border-[var(--card-border)]">
-            <strong class="text-sm font-bold text-amber-400 block mb-1">💧 Zgrzewka wody & przekąski</strong>
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <strong class="text-sm font-bold text-amber-400">💧 Zgrzewka wody & przekąski</strong>
+              <span class="px-1.5 py-0.5 rounded text-[8px] font-black bg-purple-500/20 text-purple-300">USA</span>
+            </div>
             <p class="text-xs text-[var(--text-muted)]">Zgrzewka 24 butelek wody w Walmart to koszt zaledwie $4. W parkach jedna mała butelka potrafi kosztować $4!</p>
           </div>
         </div>
@@ -1901,20 +2058,30 @@
       const saved = JSON.parse(localStorage.getItem('usa_packing_list_2026') || '{}');
       document.querySelectorAll('.packing-cb').forEach(cb => {
         const id = cb.getAttribute('data-id');
-        if (id && saved[id]) {
-          cb.checked = true;
-          cb.closest('label').classList.add('opacity-50', 'line-through');
+        if (id && typeof saved[id] === 'boolean') {
+          cb.checked = saved[id];
+        }
+        const label = cb.closest('label');
+        if (label) {
+          if (cb.checked) {
+            label.classList.add('opacity-50', 'line-through');
+          } else {
+            label.classList.remove('opacity-50', 'line-through');
+          }
         }
         cb.addEventListener('change', () => {
-          if (cb.checked) {
-            cb.closest('label').classList.add('opacity-50', 'line-through');
-          } else {
-            cb.closest('label').classList.remove('opacity-50', 'line-through');
+          if (label) {
+            if (cb.checked) {
+              label.classList.add('opacity-50', 'line-through');
+            } else {
+              label.classList.remove('opacity-50', 'line-through');
+            }
           }
           savePackingChecklist();
           updatePackingProgress();
         });
       });
+      savePackingChecklist();
       updatePackingProgress();
     }
 
@@ -1947,11 +2114,69 @@
       if (confirm('Czy na pewno chcesz wyczyścić wszystkie zaznaczenia na liście pakowania?')) {
         document.querySelectorAll('.packing-cb').forEach(cb => {
           cb.checked = false;
-          cb.closest('label').classList.remove('opacity-50', 'line-through');
+          const label = cb.closest('label');
+          if (label) label.classList.remove('opacity-50', 'line-through');
         });
         localStorage.removeItem('usa_packing_list_2026');
         updatePackingProgress();
       }
+    }
+
+    function filterPacking(status) {
+      // Update active button styles
+      const activeStyles = {
+        'all': 'packing-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-white transition-all shadow',
+        'buy': 'packing-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-slate-950 font-black transition-all shadow',
+        'packed': 'packing-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500 text-white transition-all shadow',
+        'home': 'packing-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-500 text-white transition-all shadow',
+        'usa': 'packing-filter-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-purple-600 text-white transition-all shadow'
+      };
+      const inactiveStyles = {
+        'all': 'packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-white/10 text-[var(--text-muted)] border border-[var(--card-border)] transition-all',
+        'buy': 'packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition-all',
+        'packed': 'packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all',
+        'home': 'packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 transition-all',
+        'usa': 'packing-filter-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-white/5 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30 transition-all'
+      };
+
+      document.querySelectorAll('.packing-filter-btn').forEach(btn => {
+        const btnFilter = btn.getAttribute('data-filter');
+        if (btnFilter === status) {
+          btn.className = activeStyles[btnFilter] || activeStyles['all'];
+        } else {
+          btn.className = inactiveStyles[btnFilter] || inactiveStyles['all'];
+        }
+      });
+
+      // Filter items
+      const items = document.querySelectorAll('.packing-item');
+      items.forEach(item => {
+        const itemStatus = item.getAttribute('data-status');
+        if (status === 'all' || itemStatus === status) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      // Filter cards
+      document.querySelectorAll('.packing-card').forEach(card => {
+        const cardStatus = card.getAttribute('data-status');
+        if (cardStatus === 'usa') {
+          if (status === 'all' || status === 'usa') {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        } else {
+          const visibleItems = card.querySelectorAll('.packing-item:not(.hidden)');
+          if (visibleItems.length === 0) {
+            card.classList.add('hidden');
+          } else {
+            card.classList.remove('hidden');
+          }
+        }
+      });
     }
 
     // Initialize checklist
