@@ -177,6 +177,9 @@
       <button onclick="switchTab('packing')" id="nav-packing" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold hover:bg-white/5 border border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)]">
         <span class="text-base">🧳</span> <span class="hidden sm:inline">Co Spakować</span>
       </button>
+      <button onclick="switchTab('sos')" id="nav-sos" class="nav-btn flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold hover:bg-white/5 border border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)]">
+        <span class="text-base">🚨</span> <span class="hidden sm:inline">SOS</span>
+      </button>
       <div class="w-px h-6 bg-[var(--card-border)] mx-1"></div>
       <button onclick="toggleTheme()" class="nav-btn flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold hover:bg-white/5 border border-transparent text-[var(--text-muted)] hover:text-[var(--text-main)]" title="Przełącz motyw">
         <span id="theme-icon" class="text-base">☀️</span>
@@ -1952,6 +1955,89 @@
   </div>
 </div>
 
+<!-- ============ SOS VIEW ============ -->
+<div id="view-sos" class="tab-view transition-opacity duration-300 opacity-0 hidden">
+  <div class="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b-2 border-rose-500 pb-4">
+      <div>
+        <h2 class="text-3xl font-black text-[var(--text-main)]">🛡️ SOS – Ubezpieczenie</h2>
+        <p class="text-sm text-[var(--text-muted)]">ERGO „Beztroskie Podróże” • Wariant 3 • Świat</p>
+      </div>
+      <div class="text-sm text-[var(--text-muted)] sm:text-right">
+        Polisa nr <b class="text-[var(--text-main)]">194163850</b><br>
+        <b class="text-[var(--text-main)]">Przemysław Rabczak</b><br>
+        Ważna: <b class="text-[var(--text-main)]">11.10 – 29.10.2026</b>
+      </div>
+    </div>
+
+    <div class="rounded-3xl p-6 bg-gradient-to-br from-rose-700 to-rose-500 text-white">
+      <div class="text-xs font-extrabold tracking-widest uppercase opacity-90">🚨 Centrum Alarmowe (Euro-Center) – 24h</div>
+      <a href="tel:+48583091100" class="block text-4xl sm:text-5xl font-black my-1 text-white">+48 58 309 11 00</a>
+      <div class="text-sm sm:text-base">✉️ pomoc@euro-center.com • Podaj: nr polisy <b>194163850</b>, imię i nazwisko, lokalizację</div>
+      <div class="mt-3 rounded-xl bg-amber-100 text-amber-900 font-bold text-sm sm:text-base px-4 py-3">⚠️ ZANIM zapłacisz za leczenie – ZADZWOŃ! Zagrożenie życia → najpierw <a href="tel:911" class="underline">911</a>, potem od razu dzwoń.</div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div class="glass-card rounded-3xl p-6 space-y-3">
+        <h3 class="text-sm font-black uppercase tracking-widest text-rose-400">📋 Co robić w wypadku</h3>
+        <ol class="space-y-3 text-sm text-[var(--text-main)] list-decimal list-inside">
+          <li><b>Zagrożenie życia? Dzwoń 911</b> (USA i Kanada). Karetka najpierw, formalności potem.</li>
+          <li><b>Zadzwoń do Centrum Alarmowego</b> +48 58 309 11 00 – skierują do szpitala i ustalą gwarancję kosztów.</li>
+          <li><b>Stosuj się do zaleceń</b> ERGO / Centrum Alarmowego (warunek wypłaty!).</li>
+          <li><b>Zbieraj WSZYSTKO:</b> rachunki, wypisy, recepty, raporty policji, zdjęcia szkód. Oryginały!</li>
+          <li><b>Po powrocie:</b> zgłoś szkodę online na ergo-ubezpieczeniapodrozy.pl</li>
+        </ol>
+      </div>
+
+      <div class="glass-card rounded-3xl p-6 space-y-2">
+        <h3 class="text-sm font-black uppercase tracking-widest text-rose-400">💰 Twoje sumy (Wariant 3)</h3>
+        <table class="w-full text-sm text-[var(--text-main)]">
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Koszty leczenia</td><td class="text-right font-bold text-emerald-400">1 000 000 EUR</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Transport medyczny / do kraju</td><td class="text-right font-bold text-emerald-400">BEZ LIMITU</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Choroby przewlekłe</td><td class="text-right font-bold text-emerald-400">TAK</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Zdarzenia pod wpływem alkoholu</td><td class="text-right font-bold text-emerald-400">TAK</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">NNW – uszczerbek / śmierć</td><td class="text-right font-bold text-emerald-400">50 000 / 25 000 PLN</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Bagaż (franszyza 200 PLN)</td><td class="text-right font-bold text-emerald-400">4 000 PLN</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Opóźnienie bagażu (od 5 h)</td><td class="text-right font-bold text-emerald-400">1 000 PLN</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">OC: osoba / mienie</td><td class="text-right font-bold text-emerald-400">200 000 / 40 000 EUR</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Ratownictwo i poszukiwania</td><td class="text-right font-bold text-emerald-400">10 000 EUR</td></tr>
+          <tr class="border-b border-[var(--card-border)]"><td class="py-1.5">Przerwanie podróży</td><td class="text-right font-bold text-emerald-400">2 000 EUR</td></tr>
+          <tr><td class="py-1.5">Assistance</td><td class="text-right font-bold text-emerald-400">pełny</td></tr>
+        </table>
+      </div>
+
+      <div class="glass-card rounded-3xl p-6 space-y-2 border-l-4 border-l-amber-500">
+        <h3 class="text-sm font-black uppercase tracking-widest text-rose-400">🚫 Czego NIE pokrywa</h3>
+        <ul class="list-disc list-inside space-y-1.5 text-sm text-[var(--text-muted)]">
+          <li>Zatrucie alkoholem / jazda po alkoholu lub narkotykach</li>
+          <li>Leczenie, które można odłożyć do Polski</li>
+          <li>Przyczyny powstałe przed startem polisy</li>
+          <li>Zamieszki, strajki, terroryzm, samookaleczenia</li>
+          <li>Wyprawy w strefach ekstremalnych warunków</li>
+          <li>Kradzież bagażu bez zgłoszenia (policja!)</li>
+        </ul>
+      </div>
+
+      <div class="glass-card rounded-3xl p-6 space-y-2">
+        <h3 class="text-sm font-black uppercase tracking-widest text-rose-400">🎒 Kradzież / bagaż / OC</h3>
+        <ul class="space-y-2 text-sm text-[var(--text-main)]">
+          <li>• <b>Kradzież / włamanie do BMW:</b> zgłoś na policję, weź raport (case number).</li>
+          <li>• <b>Zagubiony bagaż:</b> spisz reklamację (PIR) na lotnisku.</li>
+          <li>• <b>Szkoda wyrządzona komuś:</b> nie przyznawaj winy, zadzwoń do Centrum.</li>
+          <li>• <b>Biuro ERGO PL:</b> <a href="tel:+48583248850" class="underline">+48 58 324 88 50</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="glass-card rounded-3xl p-5 flex flex-wrap items-center justify-center gap-3 text-sm">
+      <span class="text-[var(--text-muted)]">Do pobrania / wydruku:</span>
+      <a href="ubezpieczenie_onepager.png" target="_blank" class="px-4 py-2 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold">🖼️ Wersja kolorowa</a>
+      <a href="ubezpieczenie_onepager_bw.png" target="_blank" class="px-4 py-2 rounded-full bg-white/10 text-[var(--text-main)] border border-[var(--card-border)] font-bold">🖨️ Wersja czarno-biała (do druku)</a>
+    </div>
+  </div>
+</div>
+
+
 <script>
     const dayData = {
       12: { title: "12 Października – Przylot do Nowego Jorku", badge: "Nowy Jork", desc: "Przylot transatlantycki do NYC (JFK/EWR). Zameldowanie i odpoczynek w hotelu.", hotelId: "hotel-card-nyc" },
@@ -2017,7 +2103,7 @@
     function switchTab(tabId) {
       // Buttons
       document.querySelectorAll('.nav-btn[id^="nav-"]').forEach(btn => {
-        btn.classList.remove('active', 'text-amber-500', 'text-violet-500', 'text-emerald-400');
+        btn.classList.remove('active', 'text-amber-500', 'text-violet-500', 'text-emerald-400', 'text-rose-500');
         btn.classList.add('text-[var(--text-muted)]');
       });
       const activeBtn = document.getElementById('nav-' + tabId);
@@ -2028,6 +2114,7 @@
         if (tabId === 'dashboard') activeBtn.classList.add('text-amber-500');
         if (tabId === 'harmonogram') activeBtn.classList.add('text-violet-500');
         if (tabId === 'packing') activeBtn.classList.add('text-emerald-400');
+        if (tabId === 'sos') activeBtn.classList.add('text-rose-500');
       }
 
       // Views
